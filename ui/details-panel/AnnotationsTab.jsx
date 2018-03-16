@@ -150,7 +150,7 @@ export default class AnnotationsTab extends React.Component {
     this.deleteClassification = this.deleteClassification.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const { classifications, bugs } = this.props;
 
     this.$rootScope.$on(thEvents.deleteClassification, () => {
