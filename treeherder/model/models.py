@@ -366,8 +366,10 @@ class JobManager(models.Manager):
     """
 
     def cycle_data(self, repository, cycle_interval, chunk_size, sleep_time):
-        """Delete data older than cycle_interval, splitting the target data
-into chunks of chunk_size size. Returns the number of result sets deleted"""
+        """
+        Delete data older than cycle_interval, splitting the target data into
+        chunks of chunk_size size. Returns the number of result sets deleted
+        """
         from treeherder.model.search import bulk_delete as es_delete
         from treeherder.model.search import TestFailureLine
 
@@ -1502,3 +1504,16 @@ class TextLogErrorMatch(models.Model):
     def __str__(self):
         return "{0} {1}".format(
             self.text_log_error.id, self.classified_failure.id)
+
+
+class OtherTextLogError(models.Model):
+    """
+    A detected error line in the textual (unstructured) log
+    """
+    line = models.TextField()
+
+    class Meta:
+        db_table = "other_text_log_error"
+
+    def __str__(self):
+        return "{0} {1}".format(self.id, self.line[:100])

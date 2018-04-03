@@ -13,6 +13,8 @@ Vagrant.configure("2") do |config|
   config.vm.network "forwarded_port", guest: 8000, host: 8000, host_ip: "127.0.0.1"
   # for DB access from host
   config.vm.network "forwarded_port", guest: 3306, host: 3308, host_ip: "127.0.0.1"
+  # for Postgres access from host
+  config.vm.network "forwarded_port", guest: 5432, host: 5431, host_ip: "127.0.0.1"
 
   if !Vagrant::Util::Platform.windows?
     # On platforms where NFS is used (ie all but Windows), we still have to use
@@ -36,6 +38,11 @@ Vagrant.configure("2") do |config|
     override.vm.box_version = ">= 201801.02.0"
     hv.vmname = "treeherder"
     hv.memory = "3072"
+  end
+
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 16384
+    v.cpus = 2
   end
 
   config.vm.provision "shell", privileged: false, path: "vagrant/setup.sh"
