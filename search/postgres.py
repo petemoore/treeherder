@@ -10,7 +10,7 @@ from progress.bar import Bar  # noqa: E402
 from treeherder.model.models import Bugscache, OtherTextLogError  # noqa: E402
 
 
-logging.basicConfig(filename='search.log')
+logging.basicConfig(filename='postgres.log')
 logger = logging.getLogger(__name__)
 
 # This runs the following query for each line in the OtherTextLogError
