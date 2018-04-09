@@ -9,6 +9,26 @@ from treeherder.model.search import (TestFailureLine,
                                      connection)
 
 
+def chunked_qs(qs, chunk_size):
+    """
+    Returns a chunk of the given queryset
+
+    Note: This makes (total / chunk_size) + 1 queries
+
+    Usage:
+        article_qs = Article.objects.order_by('id')
+        for qs in batch_qs(article_qs):
+            for article in qs:
+                print(article.body)
+
+    Adapted from: https://djangosnippets.org/snippets/1170/
+    """
+    total = qs.count()
+    for start in range(0, total, chunk_size):
+        end = min(start + chunk_size, total)
+        yield qs[start:end]
+
+
 class Command(BaseCommand):
     help = """Populate ElasticSearch with data from the DB failure_line table.
 
@@ -37,9 +57,6 @@ existing data is considered for matching failure lines."""
         )
 
     def handle(self, *args, **options):
-        min_id = FailureLine.objects.order_by('id').values_list("id", flat=True)[0] - 1
-        chunk_size = options['chunk_size']
-
         if options["recreate"]:
             connection.indices.delete(TestFailureLine._doc_type.index, ignore=404)
             TestFailureLine.init()
@@ -47,37 +64,30 @@ existing data is considered for matching failure lines."""
                 self.stderr.write("Index already exists; can't perform import")
                 return
 
-        while True:
-            rows = (FailureLine.objects
-                    .filter(id__gt=min_id)
-                    .order_by('id')
-                    .values("id", "job_guid", "action", "test", "subtest",
-                            "status", "expected", "message", "best_classification_id",
-                            "best_is_verified"))[:chunk_size]
+        fields = [
+            'id',
+            'job_guid',
+            'test',
+            'subtest',
+            'status',
+            'expected',
+            'message',
+            'best_classification_id',
+            'best_is_verified',
+        ]
+
+        failure_lines = (FailureLine.objects.filter(action='test_result')
+                                            .order_by('id')
+                                            .only(*fields))
+        for rows in chunked_qs(failure_lines, options['chunk_size']):
             if not rows:
                 break
-            es_lines = []
-            for item in rows:
-                es_line = failure_line_from_value(item)
-                if es_line:
-                    es_lines.append(es_line)
+
+            es_lines = [TestFailureLine.from_model(line) for line in rows]
             self.stdout.write("Inserting %i rows" % len(es_lines))
             bulk_insert(es_lines)
-            min_id = rows[len(rows) - 1]["id"]
+
             time.sleep(options['sleep'])
+
         count = Search(doc_type=TestFailureLine).count()
         self.stdout.write("Index contains %i documents" % count)
-
-
-def failure_line_from_value(line):
-    if line["action"] == "test_result":
-        rv = TestFailureLine(job_guid=line["job_guid"],
-                             test=line["test"],
-                             subtest=line["subtest"],
-                             status=line["status"],
-                             expected=line["expected"],
-                             message=line["message"],
-                             best_classification=line["best_classification_id"],
-                             best_is_verified=line["best_is_verified"])
-        rv.meta.id = line["id"]
-        return rv
