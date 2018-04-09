@@ -30,10 +30,12 @@ def chunked_qs(qs, chunk_size):
 
 
 class Command(BaseCommand):
-    help = """Populate ElasticSearch with data from the DB failure_line table.
+    help = """
+        Populate ElasticSearch with data from the DB failure_line table.
 
-This script must be run when ElasticSearch is first set up, to ensure that
-existing data is considered for matching failure lines."""
+        This script must be run when ElasticSearch is first set up, to ensure that
+        existing data is considered for matching failure lines.
+    """
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -61,8 +63,8 @@ existing data is considered for matching failure lines."""
             connection.indices.delete(TestFailureLine._doc_type.index, ignore=404)
             TestFailureLine.init()
         elif connection.indices.exists(TestFailureLine._doc_type.index):
-                self.stderr.write("Index already exists; can't perform import")
-                return
+            self.stderr.write("Index already exists; can't perform import")
+            return
 
         fields = [
             'id',
