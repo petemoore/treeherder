@@ -1,4 +1,3 @@
-import angular from 'angular';
 import numeral from 'numeral';
 
 import treeherder from './treeherder';
@@ -39,40 +38,6 @@ treeherder.filter('linkifyBugs', function () {
         }
 
         return str;
-    };
-});
-
-treeherder.filter('highlightCommonTerms', function () {
-    return function (input) {
-        const compareStr = Array.prototype.slice.call(arguments, 1).filter(
-            function (x) { return x; }).join(" ");
-        const tokens = compareStr.split(/[^a-zA-Z0-9_-]+/);
-        tokens.sort(function (a, b) {
-            return b.length - a.length;
-        });
-
-        angular.forEach(tokens, function (elem) {
-            if (elem.length > 0) {
-                input = input.replace(new RegExp("(^|\\W)(" + elem + ")($|\\W)", "gi"), function (match, prefix, token, suffix) {
-                    return prefix + "<strong>" + token + "</strong>" + suffix;
-                });
-            }
-        });
-        return input;
-    };
-});
-
-treeherder.filter('escapeHTML', function () {
-    return function (text) {
-        if (text) {
-            return text
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/'/g, '&#39;')
-                .replace(/"/g, '&quot;');
-        }
-        return '';
     };
 });
 

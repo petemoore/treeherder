@@ -2,10 +2,11 @@ import PropTypes from 'prop-types';
 import { FormGroup, Label, Input } from 'reactstrap';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
+import Highlighter from 'react-highlight-words';
 
 import { getBugUrl, getLogViewerUrl, getReftestUrl } from "../../helpers/urlHelper";
 import { isReftest } from "../../helpers/jobHelper";
-import { highlightCommonTerms } from "../../helpers/displayHelper";
+import { getSearchWords } from "../../helpers/displayHelper";
 import intermittentTemplate from '../../partials/main/intermittent.html';
 
 /**
@@ -82,8 +83,6 @@ export default class LineOption extends React.Component {
       onManualBugNumberChange,
     } = this.props;
     const option = optionModel;
-    const bugSummary = { __html: highlightCommonTerms(
-      option.bugSummary, errorLine.data.bug_suggestions.search) };
 
     return (
       <div className="classification-option">
@@ -118,7 +117,12 @@ export default class LineOption extends React.Component {
                 target="_blank"
                 rel="noopener"
               >{option.bugNumber} -
-                <span dangerouslySetInnerHTML={bugSummary} />
+                <Highlighter
+                  searchWords={getSearchWords(errorLine.data.bug_suggestions.search)}
+                  textToHighlight={option.bugSummary}
+                  caseSensitive
+                  highlightTag="strong"
+                />
               </a>
               <span> [ {Number.parseFloat(option.score).toPrecision(2)} ]</span>
             </span>}

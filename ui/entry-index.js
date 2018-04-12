@@ -54,7 +54,6 @@ import './js/models/job_log_url';
 import './js/models/option_collection';
 import './js/models/user';
 import './js/models/error';
-import './js/models/matcher';
 import './js/models/failure_lines';
 import './js/models/text_log_errors';
 import './js/models/bug_suggestions';

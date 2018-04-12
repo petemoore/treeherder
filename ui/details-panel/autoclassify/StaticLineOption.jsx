@@ -1,7 +1,8 @@
 import PropTypes from 'prop-types';
+import Highlighter from 'react-highlight-words';
 
 import { getBugUrl } from "../../helpers/urlHelper";
-import { highlightCommonTerms } from "../../helpers/displayHelper";
+import { getSearchWords } from "../../helpers/displayHelper";
 
 /**
  * Non-editable best option
@@ -18,8 +19,7 @@ export default function StaticLineOption(props) {
     manualBugNumber,
     pinBoard,
   } = props;
-  const bugSummary = { __html: highlightCommonTerms(
-    option.bugSummary, errorLine.data.bug_suggestions.search) };
+
   const optionCount = numOptions - 1;
   const ignoreAlwaysText = ignoreAlways ? 'for future classifications' : 'here only';
 
@@ -45,7 +45,12 @@ export default function StaticLineOption(props) {
           target="_blank"
           rel="noopener"
         >{option.bugNumber} -
-          <span dangerouslySetInnerHTML={bugSummary} />
+          <Highlighter
+            searchWords={getSearchWords(errorLine.data.bug_suggestions.search)}
+            textToHighlight={option.bugSummary}
+            caseSensitive
+            highlightTag="strong"
+          />
         </a>
         <span>[ {Number.parseFloat(option.score).toPrecision(2)} ]</span>
       </span>}

@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types';
+import Highlighter from 'react-highlight-words';
 
 import treeherder from '../js/treeherder';
 import { getBugUrl } from '../helpers/urlHelper';
-import { escapeHTML, highlightCommonTerms } from "../helpers/displayHelper";
+import { getSearchWords } from '../helpers/displayHelper';
 
 const BUG_LIMIT = 20;
 
@@ -113,8 +114,6 @@ function BugListItem(props) {
     bugClassName, title, $timeout, pinboardService, selectedJob,
   } = props;
   const bugUrl = getBugUrl(bug.id);
-  const bugSummaryText = escapeHTML(bug.summary);
-  const highlightedTerms = { __html: highlightCommonTerms(bugSummaryText, suggestion.search) };
 
   return (
     <li>
@@ -132,7 +131,13 @@ function BugListItem(props) {
         rel="noopener"
         title={title}
       >{bug.id}
-        <span className={`${bugClassName} ml-1`} dangerouslySetInnerHTML={highlightedTerms} />
+        <Highlighter
+          className={`${bugClassName} ml-1`}
+          searchWords={getSearchWords(suggestion.search)}
+          textToHighlight={bug.summary}
+          caseSensitive
+          highlightTag="strong"
+        />
       </a>
     </li>
   );

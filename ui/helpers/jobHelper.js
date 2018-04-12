@@ -14,10 +14,6 @@ const btnClasses = {
   'in progress': "btn-dkgray",
 };
 
-export const allResultStates = ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending', 'superseded', 'runnable'];
-
-export const defaultFilterResultStates = ['success', 'testfailed', 'busted', 'exception', 'retry', 'usercancel', 'running', 'pending', 'runnable'];
-
 // Get the CSS class for job buttons as well as jobs that show in the pinboard.
 // These also apply to result "groupings" like ``failures`` and ``in progress``
 // for the colored filter chicklets on the nav bar.
