@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/prefer-default-export
 export const toDateStr = function toDateStr(timestamp) {
   const dateFormat = {
     weekday: 'short',
