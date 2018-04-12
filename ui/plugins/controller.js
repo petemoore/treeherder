@@ -187,6 +187,7 @@ treeherder.controller('PluginCtrl', [
 
                 $scope.job = {};
                 $scope.job_details = [];
+                $scope.perfJobDetail = [];
                 const jobPromise = ThJobModel.get(
                     $scope.repoName, job.id,
                     { timeout: selectJobPromise });
@@ -262,14 +263,15 @@ treeherder.controller('PluginCtrl', [
                             signatureIdChunk => PhSeries.getSeriesList($scope.repoName, { id: signatureIdChunk })
                         )).then((seriesListList) => {
                             const seriesList = _.flatten(seriesListList);
-                            $scope.perfJobDetail = performanceData.map(d => ({
+                            $timeout($scope.perfJobDetail = performanceData.map(d => ({
                                 series: seriesList.find(s => d.signature_id === s.id),
                                 ...d
                             })).filter(d => !d.series.parentSignature).map(d => ({
                                 url: `/perf.html#/graphs?series=${[$scope.repoName, d.signature_id, 1, d.series.frameworkId]}&selected=${[$scope.repoName, d.signature_id, $scope.job.result_set_id, d.id]}`,
                                 value: d.value,
                                 title: d.series.name
-                            }));
+                            })));
+                            console.log("perfJobDetail set now", $scope.perfJobDetail);
                         });
                     }
 
