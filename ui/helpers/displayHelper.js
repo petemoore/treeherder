@@ -11,6 +11,17 @@ export const toDateStr = function toDateStr(timestamp) {
   return new Date(timestamp * 1000).toLocaleString("en-US", dateFormat);
 };
 
+export const toShortDateStr = function toDateStr(timestamp) {
+  const dateFormat = {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: false
+  };
+  return new Date(timestamp * 1000).toLocaleString("en-US", dateFormat);
+};
+
 export const escapeHTML = function escapeHTML(text) {
   if (text) {
     return text
