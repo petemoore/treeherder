@@ -187,14 +187,18 @@ class ElasticSearchTestMatcher(Matcher):
             return
         match = ESMatch(message={"query": failure_line.message[:1024],
                                  "type": "phrase"})
+        # what type of query do these generate?
+        # are they boolean'd together?
         search = (TestFailureLine.search()
                   .filter("term", test=failure_line.test)
                   .filter("term", status=failure_line.status)
                   .filter("term", expected=failure_line.expected)
                   .filter("exists", field="best_classification")
                   .query(match))
+
         if failure_line.subtest:
             search = search.filter("term", subtest=failure_line.subtest)
+
         try:
             self.calls += 1
             resp = search.execute()
@@ -203,6 +207,7 @@ class ElasticSearchTestMatcher(Matcher):
                          failure_line.test, failure_line.subtest, failure_line.status,
                          failure_line.expected, failure_line.message)
             raise
+
         scorer = MatchScorer(failure_line.message)
         matches = [(item, item.message) for item in resp]
         best_match = scorer.best_match(matches)

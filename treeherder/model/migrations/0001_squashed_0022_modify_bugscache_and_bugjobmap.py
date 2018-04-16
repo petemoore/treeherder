@@ -579,38 +579,38 @@ class Migration(migrations.Migration):
         # Manually created migrations.
 
         # Since Django doesn't natively support creating FULLTEXT indices.
-        migrations.RunSQL(
-            # [
-            #     # Suppress the MySQL warning "InnoDB rebuilding table to add column FTS_DOC_ID":
-            #     # https://dev.mysql.com/doc/refman/5.7/en/innodb-fulltext-index.html#innodb-fulltext-index-docid
-            #     # The table is empty when the index is added, so we don't care about it being rebuilt,
-            #     # and there isn't a better way to add the index without Django FULLTEXT support.
-            #     'SET @old_max_error_count=@@max_error_count, max_error_count=0;',
-            #     'CREATE FULLTEXT INDEX idx_summary ON bugscache (summary);',
-            #     'SET max_error_count=@old_max_error_count;',
-            # ],
-            ["CREATE INDEX idx_summary ON bugscache USING GIN (to_tsvector('english', summary));"],
-            reverse_sql=['ALTER TABLE bugscache DROP INDEX idx_summary;'],
-        ),
-        # Since Django doesn't natively support creating composite prefix indicies.
-        migrations.RunSQL(
-            [
-                'CREATE INDEX failure_line_test_idx ON failure_line (test, subtest, status, expected, created);',
-                'CREATE INDEX failure_line_signature_test_idx ON failure_line (signature, test, created);',
-            ],
-            reverse_sql=[
-                'DROP INDEX failure_line_test_idx ON failure_line;',
-                'DROP INDEX failure_line_signature_test_idx ON failure_line;',
-            ],
-            state_operations=[
-                migrations.AlterIndexTogether(
-                    name='failureline',
-                    index_together=set([
-                        ('test', 'subtest', 'status', 'expected', 'created'),
-                        ('job_guid', 'repository'),
-                        ('signature', 'test', 'created'),
-                    ])
-                ),
-            ],
-        ),
+        # migrations.RunSQL(
+        #     [
+        #         # Suppress the MySQL warning "InnoDB rebuilding table to add column FTS_DOC_ID":
+        #         # https://dev.mysql.com/doc/refman/5.7/en/innodb-fulltext-index.html#innodb-fulltext-index-docid
+        #         # The table is empty when the index is added, so we don't care about it being rebuilt,
+        #         # and there isn't a better way to add the index without Django FULLTEXT support.
+        #         'SET @old_max_error_count=@@max_error_count, max_error_count=0;',
+        #         'CREATE FULLTEXT INDEX idx_summary ON bugscache (summary);',
+        #         'SET max_error_count=@old_max_error_count;',
+        #     ],
+        #     # ["CREATE INDEX idx_summary ON bugscache USING GIN (to_tsvector('english', summary));"],
+        #     reverse_sql=['ALTER TABLE bugscache DROP INDEX idx_summary;'],
+        # ),
+        # # Since Django doesn't natively support creating composite prefix indicies.
+        # migrations.RunSQL(
+        #     [
+        #         'CREATE INDEX failure_line_test_idx ON failure_line (test, subtest, status, expected, created);',
+        #         'CREATE INDEX failure_line_signature_test_idx ON failure_line (signature, test, created);',
+        #     ],
+        #     reverse_sql=[
+        #         'DROP INDEX failure_line_test_idx ON failure_line;',
+        #         'DROP INDEX failure_line_signature_test_idx ON failure_line;',
+        #     ],
+        #     state_operations=[
+        #         migrations.AlterIndexTogether(
+        #             name='failureline',
+        #             index_together=set([
+        #                 ('test', 'subtest', 'status', 'expected', 'created'),
+        #                 ('job_guid', 'repository'),
+        #                 ('signature', 'test', 'created'),
+        #             ])
+        #         ),
+        #     ],
+        # ),
     ]
