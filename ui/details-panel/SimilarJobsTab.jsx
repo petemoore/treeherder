@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { react2angular } from "react2angular/index";
 
 import { getBtnClass, getStatus } from '../helpers/jobHelper';
 import { toDateStr, toShortDateStr } from '../helpers/displayHelper';
@@ -38,6 +39,7 @@ class SimilarJobsTab extends React.Component {
 
   componentDidMount() {
     this.getSimilarJobs = this.getSimilarJobs.bind(this);
+    this.showNext = this.showNext.bind(this);
     // this.updateSimilarJobs = this.updateSimilarJobs.bind(this);
 
     this.$rootScope.$on(thEvents.jobClick, (event, job) => {
@@ -122,9 +124,11 @@ class SimilarJobsTab extends React.Component {
           project: repoName,
           jobId: nextJob.id
         }, (textLogSteps) => {
-          nextJob.error_lines = textLogSteps.map(s => s.errors);
+          nextJob.error_lines = textLogSteps.reduce((acc, step) => (
+            [...acc, ...step.errors]), []);
+          console.log("textLogSteps", nextJob.error_lines);
+          this.setState({ selectedSimilarJob: nextJob });
         });
-        this.setState({ selectedSimilarJob: nextJob });
       });
   }
 
@@ -262,10 +266,12 @@ class SimilarJobsTab extends React.Component {
                     >{selectedSimilarJob.failure_classification.name}</label>
                   </td>
                 </tr>
+                {console.log(selectedSimilarJob.error_lines)}
                 {!!selectedSimilarJob.error_lines && <tr>
                   <td colSpan={2}>
                     <ul className="list-unstyled error_list">
-                      {selectedSimilarJob.error_lines.map(error => (<li>
+                      {console.log(selectedSimilarJob.error_lines)}
+                      {selectedSimilarJob.error_lines.map(error => (<li key={error.id}>
                         <small title={error.line}>{error.line}</small>
                       </li>))}
                     </ul>
@@ -290,5 +296,7 @@ SimilarJobsTab.propTypes = {
   repoName: PropTypes.string.isRequired,
 };
 
-treeherder.directive('similarJobsTab', ['reactDirective', '$injector', (reactDirective, $injector) =>
-  reactDirective(SimilarJobsTab, undefined, {}, { $injector })]);
+treeherder.component('similarJobsTab', react2angular(
+  SimilarJobsTab,
+  ['repoName'],
+  ['$injector']));
