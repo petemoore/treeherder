@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { react2angular } from "react2angular/index.es2015";
 
 import treeherder from '../js/treeherder';
 import PerfSeriesModel from '../models/PerfSeriesModel';
@@ -87,5 +88,6 @@ PerformanceTab.defaultProps = {
   job: null,
 };
 
-treeherder.directive('performanceTab', ['reactDirective', reactDirective =>
-  reactDirective(PerformanceTab, undefined, {}, {})]);
+treeherder.component('performanceTab', react2angular(
+  PerformanceTab,
+  ['tabService', 'repoName', 'revision', 'job', 'perfJobDetail']));
